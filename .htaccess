@@ -1,0 +1,32 @@
+# Cache Control Headers
+<IfModule mod_expires.c>
+  ExpiresActive On
+  
+  # Images, CSS, JS can be cached longer
+  ExpiresByType image/* "access plus 1 week"
+  
+  # HTML and data files are sent with expires headers of 0
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/plain "access plus 0 seconds"
+  ExpiresByType application/json "access plus 0 seconds"
+  
+  # JavaScript - short cache time
+  ExpiresByType application/javascript "access plus 1 hour"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Force no-cache for HTML files
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+  
+  # 1 hour for JS files
+  <FilesMatch "\.(js)$">
+    Header set Cache-Control "max-age=3600, public"
+  </FilesMatch>
+</IfModule>
+
+# Prevent directory listings
+Options -Indexes 
