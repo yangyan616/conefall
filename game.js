@@ -53,6 +53,7 @@ let keys = {};
 let touchX = null;
 let isTouchingLeft = false;
 let isTouchingRight = false;
+let isTouchingDown = false;
 let consecutiveMatches = 0;
 
 // Handle keyboard input
@@ -67,6 +68,7 @@ window.addEventListener('keyup', (e) => {
 // Handle touch button controls
 const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
+const downBtn = document.getElementById('downBtn');
 
 leftBtn.addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -86,6 +88,16 @@ rightBtn.addEventListener('touchstart', (e) => {
 rightBtn.addEventListener('touchend', (e) => {
     e.preventDefault();
     isTouchingRight = false;
+});
+
+downBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    isTouchingDown = true;
+});
+
+downBtn.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    isTouchingDown = false;
 });
 
 // Handle touch input
@@ -232,7 +244,16 @@ function update() {
     // Update and draw blocks
     for (let i = blocks.length - 1; i >= 0; i--) {
         const block = blocks[i];
-        block.y += gameSpeed;
+        
+        // Handle instant drop with down arrow
+        if (keys['ArrowDown'] || isTouchingDown) {
+            // Move block directly above the bottom, but with a small gap to allow collision detection to work properly
+            block.y = canvas.height - BLOCK_SIZE * 2.2;
+            keys['ArrowDown'] = false; // Reset to prevent continuous dropping
+            isTouchingDown = false;
+        } else {
+            block.y += gameSpeed;
+        }
 
         // Handle horizontal movement
         if (keys['ArrowLeft'] || isTouchingLeft) {
@@ -248,7 +269,7 @@ function update() {
         // Check for collision with slots
         if (block.y + BLOCK_SIZE * 1.2 >= canvas.height - BLOCK_SIZE) {
             const slotIndex = Math.floor((block.x + BLOCK_SIZE / 2) / (canvas.width / SLOT_COUNT));
-            if (slots[slotIndex].color === block.color) {
+            if (slotIndex >= 0 && slotIndex < SLOT_COUNT && slots[slotIndex].color === block.color) {
                 // Correct match
                 score += 10;
                 consecutiveMatches++;
