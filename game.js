@@ -70,35 +70,60 @@ const leftBtn = document.getElementById('leftBtn');
 const rightBtn = document.getElementById('rightBtn');
 const downBtn = document.getElementById('downBtn');
 
-leftBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    isTouchingLeft = true;
-});
+// Function to add button event listeners
+function setupButtonControls() {
+    console.log("Setting up button controls");
+    
+    if (leftBtn) {
+        leftBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isTouchingLeft = true;
+            console.log("Left button pressed");
+        });
 
-leftBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    isTouchingLeft = false;
-});
+        leftBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            isTouchingLeft = false;
+        });
+    }
 
-rightBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    isTouchingRight = true;
-});
+    if (rightBtn) {
+        rightBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isTouchingRight = true;
+            console.log("Right button pressed");
+        });
 
-rightBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    isTouchingRight = false;
-});
+        rightBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            isTouchingRight = false;
+        });
+    }
 
-downBtn.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    isTouchingDown = true;
-});
+    if (downBtn) {
+        console.log("Down button found");
+        downBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isTouchingDown = true;
+            console.log("Down button pressed");
+        });
 
-downBtn.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    isTouchingDown = false;
-});
+        downBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            isTouchingDown = false;
+        });
+        
+        // Add a regular click handler as fallback
+        downBtn.addEventListener('click', function(e) {
+            if (blocks.length > 0) {
+                blocks[blocks.length - 1].y = canvas.height - BLOCK_SIZE * 2.2;
+                console.log("Down button clicked");
+            }
+        });
+    } else {
+        console.log("Down button not found");
+    }
+}
 
 // Handle touch input
 canvas.addEventListener('touchstart', (e) => {
@@ -144,6 +169,9 @@ function initGame() {
     
     // Create initial block
     createNewBlock();
+    
+    // Set up button controls
+    setupButtonControls();
     
     // Start game loop
     gameLoop = setInterval(update, 1000 / 60);
@@ -452,5 +480,10 @@ function restartGame() {
     initGame();
 }
 
-// Start the game
-initGame(); 
+// Make sure to init game only once DOM is fully loaded
+window.addEventListener('DOMContentLoaded', function() {
+    // Initialize the game after DOM is fully loaded
+    if (!gameLoop) {
+        initGame();
+    }
+}); 
